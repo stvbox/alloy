@@ -1,0 +1,38 @@
+
+GET  http://localhost:9090/api/v1/targets
+###
+
+POST http://localhost:9090/api/v1/write
+
+{}
+###
+
+GET http://localhost:9090/api/v1/query?query=up&time=2015-07-01T20:10:51.781Z
+###
+
+//POST http://localhost:12345/api/v1/traces
+# POST http://localhost:4318/api/v1/traces
+#POST http://localhost:4318/api/v1/traces
+POST http://localhost:12345/api/v1/push
+
+{
+  "traceId" : "671e3daab94109aafa94c5adabac7519",
+  "id" : "fa94c5adabac7519",
+  "kind" : "SERVER",
+  "name" : "http get /actuator/prometheus",
+  "timestamp" : 1730035114108807,
+  "duration" : 9909090,
+  "localEndpoint" : {
+    "serviceName" : "zipkin",
+    "ipv4" : "172.22.16.1"
+  },
+  "tags" : {
+    "exception" : "none",
+    "http.url" : "/actuator/prometheus",
+    "method" : "GET",
+    "outcome" : "SUCCESS",
+    "status" : "200",
+    "uri" : "/actuator/prometheus"
+  }
+}
+###

@@ -1,0 +1,99 @@
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+
+  // endpoint {
+  //   url = "https://prometheus-us-central1.grafana.net/api/prom/push"
+
+  //   // Get basic authentication based on environment variables.
+  //   // basic_auth {
+  //   //   username = sys.env("<REMOTE_WRITE_USERNAME>")
+  //   //   password = sys.env("<REMOTE_WRITE_PASSWORD>")
+  //   // }
+  // }
+}
+
+prometheus.scrape "metrics" {
+  // Collect metrics from the default listen address.
+  //{ __address__ = "127.0.0.1:12345" },
+  targets = [{
+    __address__ = "192.168.0.102:1235",
+    __metrics_path__ = "/actuator/prometheus",
+    __scrape_timeout__ = "500ms",
+    __scrape_interval__ = "1s",
+  }]
+  forward_to = [prometheus.remote_write.default.receiver]
+}
+
+otelcol.receiver.zipkin "default" {
+  endpoint = "0.0.0.0:9411"
+  output {
+    traces = [otelcol.processor.batch.default.input]
+  }
+}
+
+otelcol.processor.batch "default" {
+  output {
+    metrics = [otelcol.exporter.otlp.default.input]
+    logs    = [otelcol.exporter.otlp.default.input]
+    traces  = [otelcol.exporter.otlp.default.input]
+  }
+}
+
+otelcol.receiver.otlp "otlp_receiver" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+  http {
+    endpoint = "0.0.0.0:4319"
+  }
+
+  output {
+    traces = [otelcol.exporter.otlp.default.input,]
+  }
+}
+
+otelcol.exporter.otlp "default" {
+  client {
+    endpoint = "tempo:4317"
+    tls {
+			insecure = true
+		}
+  }
+}
+
+loki.source.api "default" {
+    http {
+        listen_address = "0.0.0.0"
+        listen_port = 3100
+    }
+    forward_to = [
+        loki.write.default.receiver,
+    ]
+    labels = {
+        forwarded = "true",
+    }
+}
+
+loki.write "default" {
+  // endpoint {
+  //   url = "http://loki:3100/api/v1/push"
+  //   //url = "http://localhost:3100/loki/api/v1/push"
+  // }
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+    //url = "http://localhost:3100/loki/api/v1/push"
+  }
+
+  // endpoint {
+  //   url = "https://loki:3100/loki/api/v1/push"
+
+  //   // Get basic authentication based on environment variables.
+  //   // basic_auth {
+  //   //   username = "<USERNAME>"
+  //   //   password = "<PASSWORD>"
+  //   // }
+  // }
+}
