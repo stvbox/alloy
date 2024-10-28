@@ -1,4 +1,11 @@
 
+
+POST http://localhost:9009/api/v1/push
+X-Scope-OrgID: tentant-1
+
+{}
+###
+
 GET  http://localhost:9090/api/v1/targets
 ###
 

@@ -1,8 +1,20 @@
 
+
 prometheus.remote_write "default" {
+
   endpoint {
-    url = "http://prometheus:9090/api/v1/write"
+    url = "http://load-balancer:9009/api/v1/push"
+    // basic_auth {
+    //   username = "mimir"
+    //   password = "mimir"
+    // }
   }
+
+  //X-Scope-OrgID: 100500
+
+  // endpoint {
+  //   url = "http://prometheus:9090/api/v1/write"
+  // }
 
   // endpoint {
   //   url = "https://prometheus-us-central1.grafana.net/api/prom/push"
