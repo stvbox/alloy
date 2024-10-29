@@ -29,7 +29,8 @@ management:
     sampling:
       probability: 1.0
     propagation:
-      type: b3
+      consume: [b3, w3c]
+      produce: [b3, w3c]
   endpoints:
     web:
       exposure:

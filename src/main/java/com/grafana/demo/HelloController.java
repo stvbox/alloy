@@ -1,6 +1,8 @@
 package com.grafana.demo;
 
 import io.micrometer.observation.annotation.Observed;
+import io.micrometer.tracing.Span;
+import io.micrometer.tracing.brave.bridge.BraveTracer;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +18,23 @@ public class HelloController {
 
     private static final Logger log = LoggerFactory.getLogger(HelloController.class);
     private final RestTemplateBuilder builder;
+    private final BraveTracer braveTracer;
 
-    public HelloController(RestTemplateBuilder builder) {
+    public HelloController(RestTemplateBuilder builder,
+                           BraveTracer braveTracer) {
+        this.braveTracer = braveTracer;
         this.builder = builder;
     }
 
     @Observed(name = "test-test-0")
     @RequestMapping("/test")
     public String index() {
+
+        Span span = braveTracer.currentSpan();
+
+        span.tag("test", 1);
+        span.event("testEvent");
+        span.error(new RuntimeException("test error"));
 
         RestTemplate client = builder.build();
 
